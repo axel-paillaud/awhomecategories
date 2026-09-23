@@ -10,7 +10,7 @@ BUILD_IGNORE_FILE="$MODULE_DIR/.buildignore"
 # BUILD_DIR="/tmp/${MODULE_NAME}"
 BUILD_ROOT="$HOME/.module_builds"
 BUILD_DIR="$BUILD_ROOT/$MODULE_NAME"
-OUTPUT_ZIP=~/"${MODULE_NAME}.zip"
+RELEASE_DIR="$HOME/Nextcloud/prestashop/modules-zip"
 
 # Check bash shell
 if [ -z "$BASH_VERSION" ]; then
@@ -23,10 +23,12 @@ fi
 # --- Console color ---
 if command -v tput >/dev/null 2>&1; then
   RED="$(tput setaf 1)"
+  YELLOW="$(tput setaf 3)"
   BOLD="$(tput bold)"
   RESET="$(tput sgr0)"
 else
   RED=$'\033[31m'
+  YELLOW=$'\033[33m'
   BOLD=$'\033[1m'
   RESET=$'\033[0m'
 fi
@@ -51,6 +53,47 @@ if ! command -v zip >/dev/null 2>&1; then
   echo -e "${RED}${BOLD}✖ ERREUR : La commande 'zip' est requise.${RESET}" >&2
   echo -e "${RED}Veuillez installer le paquet 'zip' puis relancer ce script.${RESET}" >&2
   exit 1
+fi
+
+# Check release directory (a missing one usually means Nextcloud is not mounted)
+if [ ! -d "$RELEASE_DIR" ]; then
+  echo -e "${RED}${BOLD}\n✖ ERREUR : Le dossier de releases est introuvable.\n${RESET}" >&2
+  echo -e "${RED}Chemin attendu : $RELEASE_DIR${RESET}" >&2
+  echo -e "${RED}Nextcloud est-il bien synchronisé sur cette machine ?${RESET}" >&2
+  exit 1
+fi
+
+# --- Version ---
+# The one declared in the main class is proposed as default
+DEFAULT_VERSION="$(grep -oE "this->version = '[^']+'" "$MODULE_DIR/$MODULE_NAME.php" 2>/dev/null | grep -oE "[0-9]+(\.[0-9]+)*" | head -n 1)"
+
+read -r -p "Version du module [${DEFAULT_VERSION:-ex. 1.0.0}] : " VERSION
+VERSION="${VERSION:-$DEFAULT_VERSION}"
+
+if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo -e "${RED}${BOLD}\n✖ ERREUR : Version invalide : '${VERSION}'. Format attendu : 1.0.0${RESET}" >&2
+  exit 1
+fi
+
+if [ -n "$DEFAULT_VERSION" ] && [ "$VERSION" != "$DEFAULT_VERSION" ]; then
+  echo -e "${YELLOW}⚠ La version saisie ($VERSION) diffère de celle déclarée dans $MODULE_NAME.php ($DEFAULT_VERSION).${RESET}"
+  read -r -p "Continuer quand même ? [o/N] " CONFIRM
+  if ! [[ "$CONFIRM" =~ ^[oOyY]$ ]]; then
+    echo "Abandon."
+    exit 1
+  fi
+fi
+
+OUTPUT_ZIP="$RELEASE_DIR/v${VERSION}-${MODULE_NAME}.zip"
+
+# Never overwrite a release silently
+if [ -f "$OUTPUT_ZIP" ]; then
+  echo -e "${YELLOW}⚠ L'archive existe déjà : $OUTPUT_ZIP${RESET}"
+  read -r -p "L'écraser ? [o/N] " CONFIRM
+  if ! [[ "$CONFIRM" =~ ^[oOyY]$ ]]; then
+    echo "Abandon."
+    exit 1
+  fi
 fi
 
 # Clean before
