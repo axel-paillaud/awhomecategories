@@ -24,7 +24,19 @@ A card is illustrated with the category thumbnail (Catalog > Categories > edit >
 
 ## Front template
 
-`views/templates/hook/displayHome.tpl` follows the Hummingbird conventions: a full-width `<section class="awhomecategories">` wrapping its own `.container`, BEM classes, no JavaScript, no CSS shipped by the module. Style it in the theme (`src/scss/prestashop/modules/`), or override the template in `themes/<theme>/modules/awhomecategories/views/templates/hook/displayHome.tpl`.
+`views/templates/hook/displayHome.tpl` follows the Hummingbird conventions: a full-width `<section class="awhomecategories">` wrapping its own `.container`, BEM classes, no JavaScript.
+
+## Styles
+
+`views/css/awhomecategories.css` is registered on the home page only (`actionFrontControllerSetMedia`, `php_self === 'index'`). It only relies on Bootstrap CSS custom properties (`--bs-body-color`, `--bs-border-color`, `--bs-primary`, `--bs-headings-font-family`...), so it fits any Hummingbird based theme.
+
+To restyle the block for a theme, override the file at the same path under the theme, PrestaShop picks it up instead of the module one:
+
+```
+themes/<theme>/modules/awhomecategories/views/css/awhomecategories.css
+```
+
+The template can be overridden the same way: `themes/<theme>/modules/awhomecategories/views/templates/hook/displayHome.tpl`.
 
 Variables available to the template:
 
@@ -49,6 +61,7 @@ awhomecategories/
 │       └── GeneralFormType.php            # Category tree field
 ├── translations/fr-FR/       # XLIFF translations (new translation system)
 └── views/
+    ├── css/awhomecategories.css   # Base front styles (override it in the theme)
     ├── js/admin/form.js      # Instantiates the admin ChoiceTree component
     └── templates/
         ├── admin/form.html.twig

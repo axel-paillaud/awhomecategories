@@ -52,6 +52,7 @@ class AwHomeCategories extends Module
 
         $installed = parent::install()
             && $this->registerHook('displayHome')
+            && $this->registerHook('actionFrontControllerSetMedia')
             && Configuration::updateValue(
                 GeneralDataConfiguration::AWHOMECATEGORIES_CATEGORIES,
                 json_encode($this->getDefaultCategoryIds())
@@ -79,6 +80,26 @@ class AwHomeCategories extends Module
     {
         $route = $this->get('router')->generate('awhomecategories_form_configuration');
         Tools::redirectAdmin($route);
+    }
+
+    /**
+     * Loads the block stylesheet on the home page only (the block is hooked on displayHome).
+     * Themes override it by shipping the same path: themes/<theme>/modules/awhomecategories/views/css/awhomecategories.css
+     */
+    public function hookActionFrontControllerSetMedia(array $params): void
+    {
+        if ($this->context->controller->php_self !== 'index') {
+            return;
+        }
+
+        $this->context->controller->registerStylesheet(
+            'module-awhomecategories-style',
+            'modules/' . $this->name . '/views/css/awhomecategories.css',
+            [
+                'media' => 'all',
+                'priority' => 200,
+            ]
+        );
     }
 
     /**
