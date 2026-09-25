@@ -7,17 +7,18 @@
  */
 declare(strict_types=1);
 
-namespace Axelweb\AwModuleBase\Form;
+namespace Axelweb\AwHomeCategories\Form;
 
 use PrestaShop\PrestaShop\Core\Configuration\DataConfigurationInterface;
 use PrestaShop\PrestaShop\Core\ConfigurationInterface;
 
 /**
  * Configuration is used to save data to configuration table and retrieve from it.
+ * The category selection is stored as a JSON array of category ids.
  */
 final class GeneralDataConfiguration implements DataConfigurationInterface
 {
-    public const AWMODULEBASE_SAMPLE_CONFIG = 'AWMODULEBASE_SAMPLE_CONFIG';
+    public const AWHOMECATEGORIES_CATEGORIES = 'AWHOMECATEGORIES_CATEGORIES';
 
     /**
      * @var ConfigurationInterface
@@ -29,10 +30,13 @@ final class GeneralDataConfiguration implements DataConfigurationInterface
         $this->configuration = $configuration;
     }
 
+    /**
+     * @return array{categories: int[]}
+     */
     public function getConfiguration(): array
     {
         return [
-            'sample_config' => (string) $this->configuration->get(static::AWMODULEBASE_SAMPLE_CONFIG),
+            'categories' => $this->getIdList(static::AWHOMECATEGORIES_CATEGORIES),
         ];
     }
 
@@ -40,26 +44,15 @@ final class GeneralDataConfiguration implements DataConfigurationInterface
     {
         $errors = [];
 
-        // Quick normalisation
-        $sampleConfig = isset($configuration['sample_config']) ? trim((string) $configuration['sample_config']) : '';
-
-        if (!$this->validateConfiguration(['sample_config' => $sampleConfig])) {
+        if (!$this->validateConfiguration($configuration)) {
             $errors[] = 'Invalid configuration payload.';
 
             return $errors;
         }
 
-        // Validation (exemple)
-        if ($sampleConfig !== '' && \strlen($sampleConfig) > 255) {
-            $errors[] = 'Sample configuration is too long.';
-        }
+        $categories = $this->parseIds((array) ($configuration['categories'] ?? []));
 
-        if (!empty($errors)) {
-            return $errors;
-        }
-
-        // Persist
-        $this->configuration->set(static::AWMODULEBASE_SAMPLE_CONFIG, $sampleConfig);
+        $this->configuration->set(static::AWHOMECATEGORIES_CATEGORIES, json_encode($categories));
 
         // empty = ok
         return $errors;
@@ -72,6 +65,31 @@ final class GeneralDataConfiguration implements DataConfigurationInterface
      */
     public function validateConfiguration(array $configuration): bool
     {
-        return isset($configuration['sample_config']);
+        return !isset($configuration['categories']) || is_array($configuration['categories']);
+    }
+
+    /**
+     * @return int[]
+     */
+    private function getIdList(string $key): array
+    {
+        $ids = json_decode((string) $this->configuration->get($key), true);
+
+        return is_array($ids) ? $this->parseIds($ids) : [];
+    }
+
+    /**
+     * Keeps unique positive integers only.
+     *
+     * @param array<int|string> $values
+     *
+     * @return int[]
+     */
+    private function parseIds(array $values): array
+    {
+        $ids = array_map(static fn ($value): int => (int) $value, $values);
+        $ids = array_filter($ids, static fn (int $id): bool => $id > 0);
+
+        return array_values(array_unique($ids));
     }
 }

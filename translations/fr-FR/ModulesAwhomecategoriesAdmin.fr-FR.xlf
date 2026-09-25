@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="awhomecategories" source-language="fr-FR" target-language="fr-FR" datatype="plaintext">
+    <body>
+      <trans-unit id="9cd2de105739ca3d6f7ad2d4dd759449">
+        <source>Home categories</source>
+        <target>Catégories en page d'accueil</target>
+        <note>Line: </note>
+      </trans-unit>
+      <trans-unit id="5ef3d1576758984fc9631d0979690d74">
+        <source>Displays a selection of categories on the home page, as a grid of links with an optional image.</source>
+        <target>Affiche une sélection de catégories en page d'accueil, sous forme de grille de liens avec une image facultative.</target>
+        <note>Line: </note>
+      </trans-unit>
+      <trans-unit id="bb8956c67b82c7444a80c6b2433dd8b4">
+        <source>Are you sure you want to uninstall this module?</source>
+        <target>Êtes-vous sûr de vouloir désinstaller ce module ?</target>
+        <note>Line: </note>
+      </trans-unit>
+      <trans-unit id="025940d2840e8449092ca1719904a42c">
+        <source>Categories to display</source>
+        <target>Catégories à afficher</target>
+        <note>Line: </note>
+      </trans-unit>
+      <trans-unit id="a8947afbe17c273aa6bfbb5057bafb96">
+        <source>Selected categories are displayed on the home page, in the order of the category tree. Inactive categories and categories the customer group cannot access are hidden automatically. Upload a category thumbnail (Catalog &gt; Categories) to illustrate a card.</source>
+        <target>Les catégories cochées sont affichées en page d'accueil, dans l'ordre de l'arborescence. Les catégories désactivées ou inaccessibles au groupe du client sont masquées automatiquement. Ajoutez une miniature de catégorie (Catalogue &gt; Catégories) pour illustrer une carte.</target>
+        <note>Line: </note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

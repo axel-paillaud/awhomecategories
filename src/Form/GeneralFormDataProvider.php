@@ -7,7 +7,7 @@
  */
 declare(strict_types=1);
 
-namespace Axelweb\AwModuleBase\Form;
+namespace Axelweb\AwHomeCategories\Form;
 
 use PrestaShop\PrestaShop\Core\Configuration\DataConfigurationInterface;
 use PrestaShop\PrestaShop\Core\Form\FormDataProviderInterface;
@@ -15,7 +15,7 @@ use PrestaShop\PrestaShop\Core\Form\FormDataProviderInterface;
 /**
  * Provides form data to the Symfony form from the configuration storage.
  * Keys expected/provided:
- *  - sample_config : string
+ *  - categories : int[] (category ids)
  */
 class GeneralFormDataProvider implements FormDataProviderInterface
 {
@@ -30,7 +30,7 @@ class GeneralFormDataProvider implements FormDataProviderInterface
     }
 
     /**
-     * @return array{sample_config:string}
+     * @return array{categories: int[]}
      */
     public function getData(): array
     {
@@ -38,7 +38,7 @@ class GeneralFormDataProvider implements FormDataProviderInterface
     }
 
     /**
-     * @param array{sample_config?:string} $data
+     * @param array{categories?: array<int|string>} $data
      *
      * @return array<string> List of error messages (empty if success)
      */

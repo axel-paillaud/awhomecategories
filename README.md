@@ -1,184 +1,59 @@
-# AwModuleBase
+# AwHomeCategories
 
-A modern boilerplate for PrestaShop 8 / 9 module development, by [Axelweb](https://axelweb.fr).
+Displays a selection of categories on the home page (`displayHome`), as a grid of links with an optional image. By [Axelweb](https://axelweb.fr).
+
+Built from [awmodulebase](https://github.com/axel-paillaud/awmodulebase).
 
 ## Requirements
 
 - PrestaShop 8.0+
 - PHP 8.1+
-- Composer
+- Composer (`composer install --no-dev` in the module directory before installing)
 
-## Getting started
+## Configuration
 
-1. Copy this module and rename it (folder, main PHP file, class name, namespace, service IDs, route names).
-2. Run `composer install` in the module directory.
-3. Install the module from the PrestaShop back-office.
+Modules > Home categories > Configure (Symfony route `awhomecategories_form_configuration`).
 
----
+A single field, a category tree (`CategoryChoiceTreeType`): the checked categories are displayed on the home page in the order of the category tree. The selection is stored as a JSON array of ids in `AWHOMECATEGORIES_CATEGORIES`. On install, the active children of the home category are selected.
 
-## Features
+At render time the module skips categories that are inactive or not accessible to the current customer group, so it behaves like `ps_mainmenu` on a private shop: a visitor who cannot see the categories does not see the block at all.
 
-### Back-office tab
+## Images
 
-A menu tab is automatically registered in the back-office on install via the `$tabs` property in the main class.
+A card is illustrated with the category thumbnail (Catalog > Categories > edit > thumbnail), using the theme's `default_lg` image size. When no selected category has a thumbnail, the block falls back to a text-only list so the grid stays consistent.
 
-```php
-public $tabs = [
-    [
-        'name'              => ['en' => 'Module Base', 'fr' => 'Module Base'],
-        'class_name'        => 'AwModuleBase',
-        'parent_class_name' => 'AdminParentModulesSf',
-        'wording'           => 'Module Base',
-        'wording_domain'    => 'Modules.Awmodulebase.Admin',
-    ],
-];
-```
+## Front template
 
-- Change `name` to set the label shown in the menu.
-- Change `parent_class_name` to move the tab to a different menu section (e.g. `AdminCatalog`, `AdminOrders`).
-- Remove the `$tabs` property entirely if you do not need a menu entry.
+`views/templates/hook/displayHome.tpl` follows the Hummingbird conventions: a full-width `<section class="awhomecategories">` wrapping its own `.container`, BEM classes, no JavaScript, no CSS shipped by the module. Style it in the theme (`src/scss/prestashop/modules/`), or override the template in `themes/<theme>/modules/awhomecategories/views/templates/hook/displayHome.tpl`.
 
-The tab links to the Symfony route `awmodulebase_index` (`/awmodulebase/index`), handled by `AwModuleBaseController`.
+Variables available to the template:
 
----
-
-### Configuration page
-
-The module redirects `getContent()` to a Symfony-based configuration page at `/awmodulebase/configuration`.
-
-The stack follows PrestaShop's modern form pattern:
-
-| File | Role |
+| Variable | Content |
 |---|---|
-| `src/Form/GeneralFormType.php` | Symfony form definition (fields) |
-| `src/Form/GeneralDataConfiguration.php` | Read/write values to `ps_configuration` |
-| `src/Form/GeneralFormDataProvider.php` | Glue between form and data configuration |
-| `src/Controller/AdminConfigurationController.php` | Renders and handles the form |
-| `views/templates/admin/form.html.twig` | Twig template for the form |
-
-A sample field `AWMODULEBASE_SAMPLE_CONFIG` is included as a starting point. Add, rename, or remove fields in `GeneralFormType` and `GeneralDataConfiguration`.
-
----
-
-### SQL tables
-
-SQL scripts run automatically on install and uninstall:
-
-- **`sql/install.php`** — table creation
-- **`sql/uninstall.php`** — table deletion
-
-Both files contain a commented-out example. Uncomment and adapt it for your own tables:
-
-```php
-$sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'awmodulebase_example` (
-    `id_awmodulebase_example` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(255) NOT NULL,
-    `value` TEXT DEFAULT NULL,
-    `active` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
-    `date_add` DATETIME NOT NULL,
-    `date_upd` DATETIME NOT NULL,
-    PRIMARY KEY (`id_awmodulebase_example`),
-    KEY `active` (`active`)
-) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;';
-```
-
-If your module does not need a dedicated table, leave the arrays empty — the scripts will simply return `true`.
-
----
-
-### Front-office assets
-
-The hook `actionFrontControllerSetMedia` loads a CSS and a JS file on every front-office page:
-
-- `views/css/awmodulebase.css`
-- `views/js/awmodulebase.js`
-
-Remove the hook registration in `install()` and delete `hookActionFrontControllerSetMedia()` if no front-office assets are needed.
-
----
-
-### Back-office assets
-
-Admin CSS and JS are loaded directly from the Twig template (`views/templates/admin/form.html.twig`) via the `stylesheets` and `javascripts` blocks:
-
-- `views/css/admin/form.css`
-- `views/js/admin/form.js`
-
----
-
-### Symfony services (DI)
-
-Services are declared in `config/services.yml`. The namespace prefix used throughout is `axelweb.awmodulebase.*`. Update all service IDs when renaming the module.
-
----
-
-### Symfony routes
-
-Routes are defined in `config/routes.yml`:
-
-| Route name | Path | Controller |
-|---|---|---|
-| `awmodulebase_index` | `/awmodulebase/index` | `AwModuleBaseController::index` |
-| `awmodulebase_form_configuration` | `/awmodulebase/configuration` | `AdminConfigurationController::index` |
-
-The `_legacy_controller` and `_legacy_link` keys are required for the tab system to work correctly.
-
----
-
-### Translation
-
-The module uses PrestaShop's new translation system (`isUsingNewTranslationSystem()` returns `true`). The translation domain is `Modules.Awmodulebase.Admin`.
-
----
-
-### Symfony cache
-
-The Symfony cache is cleared automatically after a successful install (`Tools::clearSf2Cache()`) to avoid route-not-found errors.
-
----
+| `$categories` | List of `CategoryLazyArray` (`id`, `name`, `url`, `description`, `thumbnail.bySize.*`, `image.bySize.*`) |
 
 ## Project structure
 
 ```
-awmodulebase/
-├── awmodulebase.php          # Main module class
+awhomecategories/
+├── awhomecategories.php      # Main module class (hook, category loading)
 ├── composer.json
 ├── config/
-│   ├── routes.yml            # Symfony routes
+│   ├── routes.yml            # Symfony route of the configuration page
 │   └── services.yml          # Symfony DI services
-├── sql/
-│   ├── install.php           # Table creation
-│   └── uninstall.php         # Table deletion
 ├── src/
-│   ├── Controller/
-│   │   ├── AdminConfigurationController.php
-│   │   └── AwModuleBaseController.php
+│   ├── Controller/AdminConfigurationController.php
 │   └── Form/
-│       ├── GeneralDataConfiguration.php
+│       ├── GeneralDataConfiguration.php   # Read/write ps_configuration
 │       ├── GeneralFormDataProvider.php
-│       └── GeneralFormType.php
-├── vendor/                   # Composer dependencies
+│       └── GeneralFormType.php            # Category tree field
+├── translations/fr-FR/       # XLIFF translations (new translation system)
 └── views/
-    ├── css/
-    │   ├── admin/form.css
-    │   └── awmodulebase.css
-    ├── js/
-    │   ├── admin/form.js
-    │   └── awmodulebase.js
+    ├── js/admin/form.js      # Instantiates the admin ChoiceTree component
     └── templates/
-        └── admin/
-            ├── awmodulebase.html.twig
-            └── form.html.twig
+        ├── admin/form.html.twig
+        └── hook/displayHome.tpl
 ```
-
----
-
-## TODO
-
-- [X] Replace all header stamp
-- [X] Remove smartpack reference
-
----
 
 ## License
 

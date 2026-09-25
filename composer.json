@@ -1,6 +1,6 @@
 {
-  "name": "axelweb/awmodulebase",
-  "description": "PrestaShop module base template for development",
+  "name": "axelweb/awhomecategories",
+  "description": "Displays a selection of categories on the PrestaShop home page",
   "type": "prestashop-module",
   "license": "AFL-3.0",
   "authors": [
@@ -11,7 +11,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Axelweb\\AwModuleBase\\": "src/"
+      "Axelweb\\AwHomeCategories\\": "src/"
     }
   },
   "require": {
@@ -19,7 +19,7 @@
   },
   "config": {
     "prepend-autoloader": false,
-    "autoloader-suffix": "AwModuleBase"
+    "autoloader-suffix": "AwHomeCategories"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.89"

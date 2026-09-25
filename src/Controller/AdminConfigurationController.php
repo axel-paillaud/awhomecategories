@@ -7,7 +7,7 @@
  */
 declare(strict_types=1);
 
-namespace Axelweb\AwModuleBase\Controller;
+namespace Axelweb\AwHomeCategories\Controller;
 
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +17,7 @@ class AdminConfigurationController extends FrameworkBundleAdminController
 {
     public function index(Request $request): Response
     {
-        $generalFormDataHandler = $this->get('axelweb.awmodulebase.form.general_form_data_handler');
+        $generalFormDataHandler = $this->get('axelweb.awhomecategories.form.general_form_data_handler');
 
         $generalForm = $generalFormDataHandler->getForm();
         $generalForm->handleRequest($request);
@@ -28,13 +28,13 @@ class AdminConfigurationController extends FrameworkBundleAdminController
             if (empty($errors)) {
                 $this->addFlash('success', $this->trans('Successful update.', 'Admin.Notifications.Success'));
 
-                return $this->redirectToRoute('awmodulebase_form_configuration');
+                return $this->redirectToRoute('awhomecategories_form_configuration');
             }
 
             $this->flashErrors($errors);
         }
 
-        return $this->render('@Modules/awmodulebase/views/templates/admin/form.html.twig', [
+        return $this->render('@Modules/awhomecategories/views/templates/admin/form.html.twig', [
             'generalForm' => $generalForm->createView(),
         ]);
     }

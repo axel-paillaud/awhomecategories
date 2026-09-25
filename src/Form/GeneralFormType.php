@@ -7,29 +7,22 @@
  */
 declare(strict_types=1);
 
-namespace Axelweb\AwModuleBase\Form;
+namespace Axelweb\AwHomeCategories\Form;
 
+use PrestaShopBundle\Form\Admin\Type\CategoryChoiceTreeType;
 use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class GeneralFormType extends TranslatorAwareType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('sample_config', TextType::class, [
-                'label' => $this->trans('Sample configuration', 'Modules.Awmodulebase.Admin'),
-                'help' => $this->trans('Example configuration field', 'Modules.Awmodulebase.Admin'),
+            ->add('categories', CategoryChoiceTreeType::class, [
+                'label' => $this->trans('Categories to display', 'Modules.Awhomecategories.Admin'),
+                'help' => $this->trans('Selected categories are displayed on the home page, in the order of the category tree. Inactive categories and categories the customer group cannot access are hidden automatically. Upload a category thumbnail (Catalog > Categories) to illustrate a card.', 'Modules.Awhomecategories.Admin'),
+                'multiple' => true,
                 'required' => false,
-                'constraints' => [
-                    new Assert\Length(['max' => 255]),
-                ],
-                'attr' => [
-                    'placeholder' => 'Example value',
-                    'autocomplete' => 'off',
-                ],
             ]);
     }
 }
